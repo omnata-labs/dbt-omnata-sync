@@ -1,7 +1,7 @@
 {% materialization omnata_inbound_stream, default %}
     {{ run_hooks(pre_hooks) }}
     
-    {%- set omnata_application_name = var('omnata_application_name') -%}
+    {%- set omnata_application_name = var('omnata_application_name',default='OMNATA_SYNC_ENGINE') -%}
     {%- set stream_name = config.require('stream_name') -%}
     {{ log("model: " ~ model) }}
     

@@ -19,7 +19,7 @@
         {%- set source_model_parts = modules.re.split('\.',source_model) -%}
         {%- set sync_task = config.require('sync_task') -%}
         {%- set sync_connection = config.require('sync_connection') -%}
-        {%- set omnata_application_name = var('omnata_application_name') -%}
+        {%- set omnata_application_name = var('omnata_application_name',default='OMNATA_SYNC_ENGINE') -%}
         {%- set expect_omnata_match = var('expect_omnata_match',default=True) -%}
         {% if env_var('DBT_CLOUD_PROJECT_ID', 'not_cloud')=='not_cloud' %}
             {%- set run_source_name = 'dbt_core' -%}
@@ -139,7 +139,7 @@
                     {{ exceptions.raise_compiler_error("Error running Sync: " ~ result_object.error) }}
                 {% endif %}
                 {% if result_object.data.syncRunHealth=='FAILED' %}
-                    {{ exceptions.raise_compiler_error("Sync status: " ~ result_object.data.syncRunHealth) }}
+                    {{ exceptions.raise_compiler_error("Sync status: " ~ result_object.data.syncRunHealth ~ ". Please check the sync logs for run " ~result_object.data.syncRunId~", either in the Omnata UI or in the Snowflake events table.") }}
                 {% endif %}
             {% endif %}
         {% else %}
