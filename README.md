@@ -33,3 +33,14 @@ packages:
 Omnata is changing the way that data integration works, by removing complex middleware and providing native capabilities to your existing apps and data warehouses.
 
 To find out more or to contact us, visit our [website](http://omnata.com).
+
+### Alternate Omnata installation location
+
+If you install the Omnata Sync Engine under a different application name than the default OMNATA_SYNC_ENGINE, you can configure that in dbt_project.yml like so:
+
+```
+
+vars:
+  omnata_application_name: "OMNATA_APP_JAMES"
+
+```
