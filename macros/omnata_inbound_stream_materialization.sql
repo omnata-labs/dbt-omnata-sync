@@ -12,7 +12,8 @@
     {%- set sync_model_node_name = model['depends_on']['nodes'][0] -%}
     {%- set sync_model = graph.nodes[sync_model_node_name] -%}
     {{ log("sync_model: " ~ sync_model.config) }}
-    {%- set branch_name = 'main' if target.name==sync_model['config']['main_target'] else target.name -%}
+    {%- set default_branch_name = 'main' if target.name==sync_model['config']['main_target'] else target.name -%}
+    {%- set branch_name = var('omnata_branch',default=default_branch_name) -%}
     {%- set source_schema = "INBOUND_RAW" -%}
     {%- set source_name = sync_model['config']['sync_task'] ~ "_" ~ stream_name ~ "_" ~ branch_name -%}
     {{ log("source_name: " ~ source_name) }}
