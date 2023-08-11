@@ -6,7 +6,8 @@
         {%- set this_model_name = this.name -%}
         {%- set main_target = config.require('main_target') -%}
         {%- set match_required_targets = config.require('match_required_targets') -%}
-        {%- set branch_name = 'main' if target.name==main_target else target.name -%}
+        {%- set default_branch_name = 'main' if target.name==main_target else target.name -%}
+        {%- set branch_name = var('omnata_branch',default=default_branch_name) -%}
         {%- set match_required = target.name in match_required_targets -%}
         {%- set direction = config.require('direction') -%}
         {%- set sync_parameters = config.require('sync_parameters') -%}

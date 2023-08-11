@@ -14,6 +14,16 @@ First, install Omnata Sync from the Snowflake Marketplace.
 
 After creating a sync and choosing dbt as the scheduler, you will be provided with a dbt model definition.
 
+When branching, by default your dbt target name will be used to match the Omnata branch name. If you wish to specify your branch,
+provide this variable:
+
+```
+
+dbt run  --vars '{"omnata_branch":"my_branch"}'
+
+
+```
+
 ### dbt project initial setup
 
 1) Add the omnata-sync package as a dependancy in your `packages.yml`:
