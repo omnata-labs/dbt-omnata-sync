@@ -10,7 +10,7 @@
         {%- set match_required = target.name in match_required_targets -%}
         {%- set direction = config.require('direction') -%}
         {%- set sync_parameters = config.require('sync_parameters') -%}
-        {%- set sync_branch_overrides_all = config.get('sync_parameter_overrides',default='{}') -%}
+        {%- set sync_parameter_overrides_all = config.get('sync_parameter_overrides',default='{}') -%}
         {%- set wait_for_completion = config.get('wait_for_completion',default=True) -%}
         {%- set omnata_application_name = var('omnata_application_name',default='OMNATA_SYNC_ENGINE') -%}
         {%- set expect_omnata_match = var('expect_omnata_match',default=True) -%}
@@ -73,8 +73,8 @@
             {%- set reopen_behaviour = "'"~branching_behaviour['reopen_behaviour']~"'" -%}
         {% endif %}
         
-        {% if branch_name in sync_branch_overrides %}
-            {%- set sync_branch_overrides = sync_branch_overrides[branch_name] -%}
+        {% if branch_name in sync_parameter_overrides_all %}
+            {%- set sync_branch_overrides = sync_parameter_overrides_all[branch_name] -%}
         {% else %}
             {%- set sync_branch_overrides = '{}' -%}
         {% endif %}
