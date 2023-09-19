@@ -10,7 +10,7 @@
         {%- set match_required = target.name in match_required_targets -%}
         {%- set direction = config.require('direction') -%}
         {%- set sync_parameters = config.require('sync_parameters') -%}
-        {%- set sync_branch_overrides_all = config.get('sync_branch_overrides',default='{}') -%}
+        {%- set sync_branch_overrides_all = config.get('sync_parameter_overrides',default='{}') -%}
         {%- set wait_for_completion = config.get('wait_for_completion',default=True) -%}
         {%- set omnata_application_name = var('omnata_application_name',default='OMNATA_SYNC_ENGINE') -%}
         {%- set expect_omnata_match = var('expect_omnata_match',default=True) -%}
