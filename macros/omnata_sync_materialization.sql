@@ -7,6 +7,7 @@
         {%- set match_required_targets = config.require('match_required_targets') -%}
         {%- set default_branch_name = 'main' if target.name==main_target else target.name -%}
         {%- set branch_name = var('omnata_branch',default=default_branch_name) -%}
+        {%- set use_dbt_warehouse = var('use_dbt_warehouse',default=True) -%}
         {%- set match_required = target.name in match_required_targets -%}
         {%- set direction = config.require('direction') -%}
         {%- set sync_parameters = config.require('sync_parameters') -%}
@@ -84,6 +85,7 @@
             {% set run_source_metadata %}
                 {
                     "project_name":"{{ project_name }}"
+                    {% if use_dbt_warehouse %},"warehouse":"{{target.warehouse}}"{% endif%}
                 }
             {% endset %}
         {% else %}
@@ -96,6 +98,7 @@
                     "run_id":"{{ env_var('DBT_CLOUD_RUN_ID') }}",
                     "run_reason_category":"{{ env_var('DBT_CLOUD_RUN_REASON_CATEGORY') }}",
                     "run_reason":"{{ env_var('DBT_CLOUD_RUN_REASON') }}"
+                    {% if use_dbt_warehouse %},"warehouse":"{{target.warehouse}}"{% endif%}
                 }
             {% endset %}
         {% endif %}
