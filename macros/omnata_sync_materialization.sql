@@ -7,7 +7,7 @@
         {%- set match_required_targets = config.require('match_required_targets') -%}
         {%- set default_branch_name = 'main' if target.name==main_target else target.name -%}
         {%- set branch_name = var('omnata_branch',default=default_branch_name) -%}
-        {%- set use_dbt_warehouse = var('use_dbt_warehouse',default=True) -%}
+        {%- set use_dbt_warehouse = var('use_dbt_warehouse',default=False) -%}
         {%- set match_required = target.name in match_required_targets -%}
         {%- set direction = config.require('direction') -%}
         {%- set sync_parameters = config.require('sync_parameters') -%}
