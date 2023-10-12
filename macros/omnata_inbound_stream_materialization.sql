@@ -15,7 +15,7 @@
     {%- set default_branch_name = 'main' if target.name==sync_model['config']['main_target'] else target.name -%}
     {%- set branch_name = var('omnata_branch',default=default_branch_name) -%}
     {%- set source_schema = "INBOUND_RAW" -%}
-    {%- set source_name = sync_model['config']['sync_task'] ~ "_" ~ stream_name ~ "_" ~ branch_name -%}
+    {%- set source_name = sync_model['config']['sync'] ~ "_" ~ branch_name ~ "_" ~ stream_name -%}
     {{ log("source_name: " ~ source_name) }}
     {% if execute %}
         {%- set identifier = model['alias'] -%}
