@@ -148,7 +148,8 @@
                                         true, -- activate draft
                                         {{records_behaviour}},
                                         {{stream_state_behaviour}},
-                                        {{reopen_behaviour}}
+                                        {{reopen_behaviour}},
+                                        null
                                         )
             {% endset %}
         {% endif %}
