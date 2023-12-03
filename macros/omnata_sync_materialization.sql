@@ -108,7 +108,7 @@
             {% if source_id_column == '' %}
                 {{ exceptions.raise_compiler_error("Outbound syncs require the source_id_column config attribute") }}
             {% endif %}
-            {%- set field_mappings = config.get('field_mappings',default='{}') -%}
+            {%- set field_mappings = config.get('field_mappings',default="{'mapper_type':'field_mapping_selector','field_mappings':[]}") -%}
         {% else %}
             {%- set streams_configuration = config.get('streams_configuration',default='[]') -%}
         {% endif %}
