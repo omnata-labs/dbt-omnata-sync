@@ -37,33 +37,18 @@
         select {{column_definitions}} from "{{omnata_application_name}}"."{{source_schema}}"."{{source_name}}"
         {% endset %}
         
-        {% if run_outside_transaction_hooks %}
-            -- no transactions on BigQuery
-            {{ run_hooks(pre_hooks, inside_transaction=False) }}
-        {% endif %}
-        -- `BEGIN` happens here on Snowflake
         {{ run_hooks(pre_hooks, inside_transaction=True) }}
-        -- If there's a table with the same name and we weren't told to full refresh,
-        -- that's an error. If we were told to full refresh, drop it. This behavior differs
-        -- for Snowflake and BigQuery, so multiple dispatch is used.
-        {%- if old_relation is not none and old_relation.is_table -%}
-            {{ handle_existing_table(flags.FULL_REFRESH, old_relation) }}
-        {%- endif -%}
-
+        
         -- build model
         {% call statement('main') -%}
             {{ create_view_as(target_relation, sql) }}
         {%- endcall %}
-        {{ run_hooks(post_hooks, inside_transaction=True) }}
         
     {% endif %}
 
     {{ adapter.commit() }}
 
-    {% if run_outside_transaction_hooks %}
-        -- No transactions on BigQuery
-        {{ run_hooks(post_hooks, inside_transaction=False) }}
-    {% endif %}
-
+    {{ run_hooks(post_hooks) }}
+    
     {{ return({'relations': [target_relation]}) }}
 {% endmaterialization %}

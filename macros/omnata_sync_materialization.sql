@@ -15,6 +15,11 @@
         {%- set wait_for_completion = config.get('wait_for_completion',default=True) -%}
         {%- set omnata_application_name = var('omnata_application_name',default='OMNATA_SYNC_ENGINE') -%}
         {%- set expect_omnata_match = var('expect_omnata_match',default=True) -%}
+        /* 
+        We skip over post hooks by default, since this materialization doesn't yield normal tables/views
+        and we don't want to trip up people's universal actions.
+         */
+        {%- set omnata_run_post_hooks = var('omnata_run_post_hooks',default=False) -%}
         
         /* Get the SQL from the model body and trim the whitespace */
         {%- set source_model = modules.re.compile("^\s+|\s+$", modules.re.MULTILINE).sub('',sql) -%}
@@ -202,7 +207,8 @@
             {% endif %}
         {% endif %}
     {% endif %}
-    {{ run_hooks(post_hooks) }}
-
+    {% if omnata_run_post_hooks %}
+        {{ run_hooks(post_hooks) }}
+    {% endif %}
     {{ return({'relations': []}) }}
 {% endmaterialization %}
