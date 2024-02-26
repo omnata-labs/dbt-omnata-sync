@@ -14,9 +14,6 @@
     {{ log("sync_model: " ~ sync_model.config) }}
     {%- set default_branch_name = 'main' if target.name==sync_model['config']['main_target'] else target.name -%}
     {%- set branch_name = var('omnata_branch',default=default_branch_name) -%}
-    {%- set source_schema = "INBOUND_RAW" -%}
-    {%- set source_name = sync_model['config']['sync'] ~ "_" ~ branch_name ~ "_" ~ stream_name -%}
-    {{ log("source_name: " ~ source_name) }}
     {% if execute %}
         {%- set identifier = model['alias'] -%}
         {%- set old_relation = adapter.get_relation(database=database, schema=schema, identifier=identifier) -%}
@@ -24,17 +21,27 @@
         {%- set target_relation = api.Relation.create(
             identifier=identifier, schema=schema, database=database,
             type='view') -%}
-        {%- set streams_configuration = fromjson(sync_model.config['streams_configuration']) -%}
-        {%- set this_stream_configuration = streams_configuration['included_streams'][stream_name] -%}
-        {%- set this_stream_schema = this_stream_configuration['stream']['json_schema'] -%}
-        {% set columns_query %}
-        select "{{omnata_application_name}}".API.COLUMNS_FROM_JSON_SCHEMA(
-            PARSE_JSON($${{tojson(this_stream_schema)}}$$)) as COLUMNS
+        {%- set sync_slug = sync_model.config['sync'] -%}
+        {% set view_definition_query %}
+        call "{{omnata_application_name}}".API.GET_INBOUND_STREAM_VIEW_DEFINITION(
+            $${{sync_slug}}$$,
+            $${{branch_name}}$$,
+            $${{stream_name}}$$
+            )
         {% endset %}
-        {% set columns_query_result = run_query(columns_query) %}
-        {% set column_definitions = columns_query_result[0].values()[0] %}
+        {%- call statement('main', fetch_result=True) -%}
+            {{view_definition_query}}
+        {%- endcall -%}
+        {% set results = load_result('main') %}
+        {% set result_object = fromjson(results['data'][0][0]) %}
+        {{ log("Get inbound stream view definition response: " ~ result_object) }}
+        {% if result_object.success==False %}
+            {{ exceptions.raise_compiler_error("Error applying sync settings: " ~ result_object.error) }}
+        {% endif %}
+        {% set view_definition = result_object['data'] %}
         {% set sql %}
-        select {{column_definitions}} from "{{omnata_application_name}}"."{{source_schema}}"."{{source_name}}"
+        select {{view_definition['snowflake_columns']|join(',')}} 
+        from {{view_definition['table_name']}}
         {% endset %}
         
         {{ run_hooks(pre_hooks, inside_transaction=True) }}
