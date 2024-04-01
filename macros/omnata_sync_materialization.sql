@@ -16,9 +16,7 @@
         {%- set omnata_application_name = var('omnata_application_name',default='OMNATA_SYNC_ENGINE') -%}
         {%- set expect_omnata_match = var('expect_omnata_match',default=True) -%}
         {%- set uppercase_source_model = var('uppercase_source_model',default=True) -%}
-        {% if uppercase_source_model==True %}
-            {%- set uppercase_source_model = uppercase_source_model.upper() -%}
-        {% endif %}
+        
         /* 
         We skip over post hooks by default, since this materialization doesn't yield normal tables/views
         and we don't want to trip up people's universal actions.
@@ -27,6 +25,9 @@
         
         /* Get the SQL from the model body and trim the whitespace */
         {%- set source_model = modules.re.compile("^\s+|\s+$", modules.re.MULTILINE).sub('',sql) -%}
+        {% if uppercase_source_model==True %}
+            {%- set source_model = source_model.upper() -%}
+        {% endif %}
         /* TODO: Improve the regex to better extract Snowflake identifiers */
         {%- set source_model_parts = modules.re.split('\.',source_model) -%}
         {% if branch_name=='main' %}
