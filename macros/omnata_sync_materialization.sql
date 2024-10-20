@@ -13,6 +13,9 @@
         {%- set sync_parameters = config.require('sync_parameters') -%}
         {%- set sync_parameter_overrides_all = config.get('sync_parameter_overrides',default='{}') -%}
         {%- set wait_for_completion = config.get('wait_for_completion',default=True) -%}
+        {%- set manage_grants_on_source_model_database = config.get('manage_grants_on_source_model_database',default=True) -%}
+        {%- set manage_grants_on_source_model_schema = config.get('manage_grants_on_source_model_schema',default=True) -%}
+        {%- set manage_grants_on_source_model_object = config.get('manage_grants_on_source_model_object',default=True) -%}
         {%- set omnata_application_name = var('omnata_application_name',default='OMNATA_SYNC_ENGINE') -%}
         {%- set expect_omnata_match = var('expect_omnata_match',default=True) -%}
         {%- set uppercase_source_model = var('uppercase_source_model',default=True) -%}
@@ -180,15 +183,27 @@
         {% if result_object.data.settingsApplied==True %}
             {% if direction=='outbound' %}
                 /* for outbound syncs, ensure the Omnata application has permission to access the source table */
-                {%- call statement() -%}
-                grant usage on database {{source_model_parts[0]}} to application "{{omnata_application_name}}"
-                {%- endcall -%}
-                {%- call statement() -%}
-                grant usage on schema {{source_model_parts[0]}}.{{source_model_parts[1]}} to application "{{omnata_application_name}}"
-                {%- endcall -%}
-                {%- call statement() -%}
-                grant select on table {{source_model_parts[0]}}.{{source_model_parts[1]}}.{{source_model_parts[2]}} to application "{{omnata_application_name}}"
-                {%- endcall -%}
+                {% if manage_grants_on_source_model_database==True %}
+                    {%- call statement() -%}
+                    grant usage on database {{source_model_parts[0]}} to application "{{omnata_application_name}}"
+                    {%- endcall -%}
+                {% endif %}
+                {% if manage_grants_on_source_model_schema==True %}
+                    {%- call statement() -%}
+                    grant usage on schema {{source_model_parts[0]}}.{{source_model_parts[1]}} to application "{{omnata_application_name}}"
+                    {%- endcall -%}
+                {% endif %}
+                {% if manage_grants_on_source_model_object==True %}
+                    {%- set source_model_relation = adapter.get_relation(
+                        database=source_model_parts[0],
+                        schema=source_model_parts[1],
+                        identifier=source_model_parts[2]) -%}
+
+                    {%- call statement() -%}
+                    grant select on {{source_model_relation.type}} {{source_model_parts[0]}}.{{source_model_parts[1]}}.{{source_model_parts[2]}} to application "{{omnata_application_name}}"
+                    {%- endcall -%}
+                {% endif %}
+
             {% endif %}
             /* run the sync */
             {% set query %}
